@@ -1,0 +1,71 @@
+#!/usr/bin/env python  
+# -*- coding: utf-8 -*- 
+import os,json,threading,time,MySQLdb
+from linkDB import *
+import urllib2,urllib
+
+
+
+class MyThread(threading.Thread):
+    def __init__(self,name):
+        threading.Thread.__init__(self)
+        self.name = name
+    def run(self):
+        conn = connectdb('arber')
+        cur = conn.cursor()
+        cur.execute("INSERT INTO mession VALUES('%s','%s','0')"%('root',self.name))
+        conn.commit()
+        index = 1
+        parm = {"access_token":evn["token"],
+                "count":"100",
+                "trim_user":"1",
+                "page":index}
+        url = "#"
+        result = urllib2.urlopen(url+"?"+urllib.urlencode(parm))
+        cur.execute("UPDATE mession SET status='1' WHERE target_name='%s'"%self.name)
+        conn.commit()
+        cur.close()
+        conn.close()
+
+def show(type):
+    conn = connectdb('arber')
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM mession WHERE user_name = 'root' and status = '%s'"%type)
+    result = cur.fetchall()
+    for mission in result:
+        print mission[1]
+
+def get_context(name):
+    conn = connectdb('arber')
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM context WHERE target_name='%s'"%name)
+    context = cur.fetchall()
+    file = open(os.path.join(os.path.join(PATH,'result'),name + '.txt'),'w')
+    file.close()
+    for con in context :
+        file = open(os.path.join(os.path.join(PATH,'result'),name + '.txt'),'a')
+        text = con[1]+'\n'+con[0]+'\n'
+        if con[3] == 1 :
+            text += con[4] + '\n'
+        if not con[2] == 'nothing':
+            text += con[2]
+        file.write(text)
+        file.close()
+    print "document is ready."
+
+
+
+
+def main():
+    while True :
+        o = raw_input("your choice : ")
+        if o[0] == 'a':
+            name = [x for x in o.split(' ') if x]
+            thread = MyThread(name[1])
+            thread.start()
+        elif o == 'show':
+            show('0')
+        elif o == 'f':
+            show('1')
+
+main()
