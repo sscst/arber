@@ -1,6 +1,6 @@
 微博备份小工具
 =============  
-依赖：MySQLdb  
+依赖：MySQLdb bootstrap  
 1. 打开config.json文件配置token,mysql信息
 2. 运行linkDB.py  
   *cd arber*  
