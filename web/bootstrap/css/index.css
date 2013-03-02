@@ -1,0 +1,75 @@
+body {
+    background: url("../img/bg.png") repeat scroll 0 0 transparent;
+}
+
+#pop-window{
+    width:670px;
+    z-index: 1070;
+    max-height: 100%;
+    bottom: 0;
+    box-shadow: 0 0 8px silver;
+    left: 50%;
+    margin-left: -330px;
+    margin-bottom:40px;
+    overflow: auto;
+    position: fixed;
+}
+
+#container{
+    background-image: url("../img/bg2.png");
+    margin: 0 auto 20px;
+    min-height: 100%;
+    padding: 54px 20px 10px;
+    width: 920px;
+}
+
+#add{
+}
+
+
+
+#band{
+    background-image: url("../img/little.jpg");
+}
+
+.cell {
+    background-color: #F9F9F9;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px 8px 8px 8px;
+    margin-top:20px;
+    margin-bottom: 20px;
+    padding: 15px;
+    position: relative;
+}
+
+.top{
+    margin-top:15px;
+}
+
+.title{
+    margin-bottom:15px;
+    margin-left:5px;
+}
+
+.font{
+    font-size:24px;
+}
+
+.font-title{
+    font-size:27px;
+}
+
+.font-name{
+    font-size:15px;
+}
+
+.weibo{
+    margin:10px;
+}
+
+.navlist {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 212px;
+}
