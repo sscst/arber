@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*- 
 from flask import url_for, Flask,render_template,request,session,redirect,Response,g,jsonify,send_from_directory
 import sys,os,time,urllib,urllib2,json,MySQLdb
-from sina_token import sina_token
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-app = Flask("myapp")
+app = Flask(__name__)
 app.config.from_pyfile('config.py')
 PATH = os.path.dirname(__file__)
 
@@ -33,7 +32,7 @@ def download(name,count):
     
 @app.route('/')
 def index():
-    return render_template('index.html',error = app.config["INDEX_ERROR"])
+    return render_template('index.html')
 
 @app.route('/user/<name>')
 def user(name):
@@ -44,45 +43,32 @@ def user(name):
     result = g.cur.fetchall()
     return render_template('user.html',user = {"name":result[0][0],"pic":result[0][1],"location":result[0][2],"follower":result[0][3],"friends":result[0][4],"status":result[0][5]})
 
-def check(name):
+@app.route('/check')
+def check():
     name = request.args.get('name')
     g.cur.execute("SELECT COUNT(*) FROM mession WHERE user_name = 'root' and target_name = '%s'" % name)
     name_count = g.cur.fetchall()
     if not name_count[0][0] == 0 :
-        return "这个名字您已经备份过了"
+        return jsonify(result="这个名字您已经备份过了")
     parm = {"access_token":app.config["TOKEN"],
             "screen_name":name}
     url = "https://api.weibo.com/2/users/show.json?" + urllib.urlencode(parm)
     try:
         result = json.loads(urllib2.urlopen(url).read())
     except urllib2.HTTPError :
-        return "抱歉，您确定真有这个昵称？"
+        return jsonify(result="抱歉，您确定真有这个昵称？")
     g.cur.execute("INSERT INTO man VALUES('%s','%s','%s',%d,%d,%d)" % (result["screen_name"],result["profile_image_url"],result["location"],result["followers_count"],result["friends_count"],result["statuses_count"]) )
     g.conn.commit()
-    return "good"
+    return jsonify(result="good")
 
 @app.route('/add')
 def add():
     name = request.args.get('name')
-    error = check(name)
-    if not error == 'good' :
-        app.config["INDEX_ERROR"] = error
-        print "here"
-        return  redirect(url_for('index'))
     g.cur.execute("SELECT pic_url FROM man WHERE screen_name = '%s'" % name)
     pic = g.cur.fetchall()
     g.cur.execute("INSERT INTO mession VALUES('root','%s','0','%s')"%(name,pic[0][0]))
     g.conn.commit()
     return redirect(url_for('index'))
-
-def connect_db():
-    conn =  MySQLdb.Connection(host=app.config["DB_MYSQL_HOST"], 
-                                 user=app.config["DB_MYSQL_USER"], 
-                                 passwd=app.config["DB_MYSQL_PASSWORD"], 
-                                 db='arber',
-                                 charset='utf8')
-    cur = conn.cursor()
-    return conn,cur
 
 @app.after_request
 def get_close(response):
@@ -91,8 +77,16 @@ def get_close(response):
     return response
 
 @app.before_request
-def connect():
-    g.conn,g.cur = connect_db()
+def connect_db():
+    with open("/home/dotcloud/environment.json") as f :
+        evn = json.loads(f.read())
+    g.conn =  MySQLdb.Connection(host=evn["DOTCLOUD_DB_MYSQL_HOST"], 
+                                 user=evn["DOTCLOUD_DB_MYSQL_LOGIN"], 
+                                 passwd=evn["DOTCLOUD_DB_MYSQL_PASSWORD"], 
+                                 db='arber',
+                                 port=int(evn["DOTCLOUD_DB_MYSQL_PORT"]),
+                                 charset='utf8')
+    g.cur = g.conn.cursor()
 
 def get_context(name,num,g):
     g.cur.execute("SET NAMES utf8")

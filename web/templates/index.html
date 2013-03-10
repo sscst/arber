@@ -36,6 +36,33 @@
 		$("#input_name").focus(function(){
 			$("#error-div").hide();
 		});
+		function mySubmit(flag){  
+			return flag;  
+		}  
+		$("#form").submit(function(){
+			var img = $("<img src='../static/img/jin.gif' style='margin:2px;' />");
+			$("#jin-div").append(img);
+			var name = $("#input_name").val();
+			var flag = 1;
+			$.ajax({url:"/check",
+			        async:false,
+			        data:{"name":name},
+			        success:function(data){
+				   if(data.result != "good"){
+					$("#jin-div").html("");
+					$("#error-div").text(data.result);
+					$("#error-div").show();
+					flag = 0 ;
+				   }
+			        },
+			        dataType:"json"
+			});
+			if(flag == 0){
+				return mySubmit(false);
+			}else{
+				return mySubmit(true);
+			}
+	        });
                });
            </script>
            <div class="span9" style="margin-left:0px;">
@@ -56,15 +83,13 @@
 	       <div class="cell" id="add">
 		   <form id="form" class="form-horizontal" action="/add" method="get">
                       <div class="control-group">
-                              <div id="nickname" class="font-name">微博昵称</div><input type="text"  id="input_name" placeholder="name" class="span12" name="name" >
+                              <div id="nickname" class="font-name" style="text-align:center;">微博昵称</div><input type="text"  id="input_name" class="span12" name="name" >
                       </div>
 		      <div class="control-group">
-			      <div id="jin-div" class="row-fluid" style="text-align:center;"><img style="margin:2px auto;" src="../static/img/jin.gif" /></div>
-			      {% if not error == "good" %}
+			      <div id="jin-div" style="text-align:center;"></div>
 			      <div id="error-div" class="alert">
-				<strong>Warning!</strong><br />{{ error }}
+				<strong>Warning!</strong><br />昵称好像不存在哦
 			      </div>
-			      {% endif %}
 			  <button id="submit" type="submit" class="btn btn-block btn-primary btn-large">添加查询</button>
 		      </div>
 		   </form>
