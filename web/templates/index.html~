@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block contain %}
+           <script type="text/javascript">
+               $(document).ready(function(){
+                    function get_mession(){
+                           $.get("/mession",
+                                  {},
+                                  function(_data){
+                                        $("#mession_body").html("");
+                                        data = _data.result;
+                                        for(var i = 0 ; i < data.length ; i++){
+                                             tr = $("<tr></tr>");
+				             text = "<td style='width:30%;'><img class='img-rounded offset3' src='" + data[i].pic + "' /></td><td style='width:40%;'>"
+				             if(data[i].status == "1"){
+				                  href = "/user/" + data[i].name;
+                                                  text += "<div class='top font-name offset1 text-success'><a href='" + href + "'>" + data[i].name + "</a></div></td><td style='width:30%'><div class='top'><span class='label label-success offset3'>完成</span></div></td>"
+				             }else{
+					          text += "<div class='top font-name offset1 text-error'>" + data[i].name + "</div></td><td style='width:30%'><div class='top'><span class='label label-important offset3'>工作中</span></div></td>"
+				             }
+				             tr.html(text);
+				             $("#mession_body").append(tr);
+                                        }
+                                   },
+			           "json");
+		      }
+		get_mession();
+		run()
+		function run() {  
+			interval = setInterval(get_mession, "30000");  
+		}  
+		$("#fresh").click(function(){
+			get_mession();
+		});
+		$("#error-div").hide();
+		$("#input_name").focus(function(){
+			$("#error-div").hide();
+		});
+               });
+           </script>
+           <div class="span9" style="margin-left:0px;">
+	       <div class="cell">
+		       <table  class="table table-hover" style="text-align:center;height:100%; width:100%;">
+			 <caption style="width:100%; margin:0px;"><div class="row-fluid"><div class="span8"><span class="pull-left offset1"><i class="icon-tasks"></i><strong>工作列表</strong></span></div><div class="span4"><span id="fresh" class="pull-right"><i class="icon-refresh"></i> 刷新</span></div></div></caption>
+			 <tbody id="mession_body">
+			 </tbody>
+		       </table>
+	       </div>
+	   </div>
+	   <div class="span3">
+	       <div class="alert alert-info cell" id="band">
+		   项目信息
+		   <p>  一个简单的微博备份器</p>
+		   <p>  欢迎加入一起维护</p>
+	       </div>
+	       <div class="cell" id="add">
+		   <form id="form" class="form-horizontal" action="/add" method="get">
+                      <div class="control-group">
+                              <div id="nickname" class="font-name">微博昵称</div><input type="text"  id="input_name" placeholder="name" class="span12" name="name" >
+                      </div>
+		      <div class="control-group">
+			      <div id="jin-div"><img src="../static/img/jin.gif" /></div>
+			      {% if not error == "good" %}
+			      <div id="error-div" class="alert">
+				<strong>Warning!</strong><br />{{ error }}
+			      </div>
+			      {% endif %}
+			  <button id="submit" type="submit" class="btn btn-block btn-primary btn-large">添加查询</button>
+		      </div>
+		   </form>
+	       </div>
+	   </div>
+{% endblock %}

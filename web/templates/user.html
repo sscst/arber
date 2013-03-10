@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block contain %}
+       <script type="text/javascript">
+          $(document).ready(function(){
+               $.get("/weibo",
+                     {name:"{{ user["name"] }}" },
+                      function(_data){
+                           data = _data.result;
+                           for(var i = 0 ; i < data.length; i++){
+                                tr = $("<tr></tr>");
+				text = "";
+				if( data[i].own == 0 ){
+				     text = "<td><div class='weibo'><i class='icon-bookmark'></i><span class='label label-weibo' ><strong>原创</strong></span><span class='label label-date'>" + data[i].time + "</span><span class='badge badge-success text'>热度&nbsp&nbsp" + data[i].hot + "</span></div><div>" + data[i].content + "</div></td>";
+				}else{
+				     text = "<td><div class='weibo'><div><i class='icon-bookmark'></i><span class='label label-info label-text'><strong>转发</strong></span><span class='label label-date'>" + data[i].time + "</span><span class='badge badge-success text'>热度&nbsp&nbsp" + data[i].hot + "</span></span></div><div><p>" + data[i].content + "</p><div class='cell other-text'><p>" + data[i].othercontext + "</p></div></div></td>";
+				}
+				tr.html(text);
+				$("#weibo_container").append(tr);
+                           }
+                     },
+                     "json");
+          });
+       </script>
+       <div class="span9" style="margin-left:0px;">
+		    <div class="cell">
+		      <table class="table table-hover" style="text-align:center;height:100%; width:100%;">
+			  <caption style="margin:0; width=100%" ><div class="row-fluid"><div class="span9"><span class="pull-left"><strong class="font" style="color:red">{{ user["name"] }}</strong>&nbsp&nbsp&nbsp&nbsp热门微博</div class="span3"></span><div><span class="offset2"><a href="/" >返回</a></span><div></div></caption>
+			<tbody id="weibo_container"></tbody>
+		      </table>
+		    </div>
+	       </div>
+	       <div class="span3">
+		   <div class="cell">
+		       <div style="border-bottom:solid 1px grey; padding:9px;" class="font-name"><i class=" icon-tag offset1"></i><span style="margin-left:17%"><strong>博主资料</strong></span></div>
+		       <div style="margin-top:10px;" class="row-fluid">
+			 <div class="span4">
+			   <img src="{{ user['pic'] }}" />
+			 </div>
+			 <div class="span8">
+			     <ul class="unstyled" style="margin:0;padding:0;">
+			         <li>{{ user["name"] }}</li>
+				 <li>{{ user["location"] }}</li>
+			     </ul>
+			 </div>
+		       </div>
+		       <div class="row-fluid" style="margin-top:10px;margin-left:0px;">
+			   <div class="span4">
+			       <blockquote>
+			         {{ user["friends"] }}<br />
+			         关注
+			       </blockquote>
+			   </div>
+			   <div class="span4">
+			       <blockquote>
+			          {{ user["follower"] }}<br />
+			          粉丝
+			       </blockquote>
+			   </div>
+			   <div class="span4">
+			       <blockquote>
+			         {{ user["status"] }}<br />
+			         微博
+			       </blockquote>
+			   </div>
+		       </div>
+		       <div class="row-fluid">
+		       <div class="btn-group span12">
+			 <button class="btn btn-primary span10">微博导出</button>
+			 <button class="btn dropdown-toggle" data-toggle="dropdown">
+			     <span class="caret"></span>
+			 </button>
+			 <ul class="dropdown-menu" >
+			     <li style="margin:12px;"><a href="/download/{{user['name'] }}/50">最受欢迎的50条微博</a></li>
+			     <li style="margin:12px;"><a href="/download/{{user['name'] }}/100">最受欢迎的100条微博</a></li>
+			     <li style="margin:12px;"><a href="/download/{{user['name'] }}/150">最受欢迎的150条微博</a></li>
+			     <li style="margin:12px;"><a href="/download/{{user['name'] }}/0">全部微博</a></li>
+			 </ul>
+		       </div>
+		   </div>
+	       </div>
+	   </div>
+{% endblock %}
